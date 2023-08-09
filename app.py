@@ -18,21 +18,28 @@ from functions import draft_email, draft_slack,reply_robot
 # Load environment variables from .env file
 load_dotenv(find_dotenv())
 
+# Logging configuration
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    stream=sys.stdout,
+)
+
 # Set Slack API credentials
 SLACK_BOT_TOKEN = os.environ["SLACK_BOT_TOKEN"]
 SLACK_SIGNING_SECRET = os.environ["SLACK_SIGNING_SECRET"]
 SLACK_BOT_USER_ID = os.environ["SLACK_BOT_USER_ID"]
 
 # Initialize the Slack app
-app = App(token=SLACK_BOT_TOKEN,signing_secret=SLACK_SIGNING_SECRET)
+app = App(token=SLACK_BOT_TOKEN)
+signature_verifier = SignatureVerifier(SLACK_SIGNING_SECRET)
 
 # Initialize the Flask app
 flask_app = Flask(__name__)
-flask_app.config['WTF_CSRF_ENABLED'] = False
 handler = SlackRequestHandler(app)
 
 
-signature_verifier = SignatureVerifier(SLACK_SIGNING_SECRET)
+
 
 def require_slack_verification(f):
     @wraps(f)
